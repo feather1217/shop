@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Login from '../views/login.vue'
-import Product from '../views/product.vue'
-import Edit from '../views/edit.vue'
+import Login from '../views/Login.vue'
+import Product from '../views/Product.vue'
+import Edit from '../views/Edit.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -17,9 +17,10 @@ const router = createRouter({
       component: Login,
     },
     {
-      path: '/product',
+      path: '/product/:id',
       name: 'product',
       component: Product,
+      props: true,
     },
     {
       path: '/edit',
