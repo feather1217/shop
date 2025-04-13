@@ -30,6 +30,6 @@
     console.log('image', props.minPrice); // 印出傳入的圖片路徑
     const emit = defineEmits(['view-detail'])
     function pBtn() {
-        router.push(`/product/${props.id}`)
+        emit('view-detail', props.id)
     }
 </script>
