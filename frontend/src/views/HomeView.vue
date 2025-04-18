@@ -7,7 +7,8 @@
       :name="product.name"
       :min-price="product.price.min"
       :max-price="product.price.max"
-      :image="product.specTypes[0]?.values[0]?.imageUrl || '/1.jpg'"
+      :image="product.specTypes[0]?.values[0]?.imageUrl || ''"
+      :total-stock="product.variants.reduce((sum, v) => sum + v.stock, 0)"
       @view-detail="handleViewDetail"
     />
   </div>

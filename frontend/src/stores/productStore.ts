@@ -10,20 +10,20 @@ export const useProductStore = defineStore('product', {
   }),
 
   actions: {
-    loadProducts() {
+    loadProducts() { //從mock載入資料
       this.products = productMock
     },
 
-    selectSpec(name: string, value: string) {
+    selectSpec(name: string, value: string) { // 選擇規格
       this.selectedSpecs[name] = value
     },
 
-    getStock(specName: string, value: string): number {
+    getStock(specName: string, value: string): number { // 獲取庫存
       const product = this.getSelectedProduct()
       if (!product) return 0
 
-      const spec1 = product.specTypes[0]?.name
-      const spec2 = product.specTypes[1]?.name
+      const spec1 = product.specTypes[0]?.name 
+      const spec2 = product.specTypes[1]?.name 
 
       if (spec1 === specName) {
         return product.variants
@@ -38,7 +38,7 @@ export const useProductStore = defineStore('product', {
       return 0
     },
 
-    getSelectedProductStock(): number {
+    getSelectedProductStock(): number { // 獲取選擇的商品庫存
       const product = this.getSelectedProduct()
       if (!product) return 0
 
@@ -55,6 +55,22 @@ export const useProductStore = defineStore('product', {
     getSelectedProduct(): Product | undefined {
       const id = Number(this.selectedSpecs['id']) // 假設用 id 來找商品
       return this.products.find(p => p.id === id)
-    }
+    },
+    addProduct(product: Product) {
+        this.products.push(product)
+      },
+      
+      updateProduct(product: Product) {
+        const index = this.products.findIndex(p => p.id === product.id)
+        if (index !== -1) {
+          this.products[index] = product
+        }
+      },
+      
+      getProductById(id: number) {
+        return this.products.find(p => p.id === id)
+      },
+      
   }
-})
+  
+}) 

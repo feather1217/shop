@@ -6,6 +6,7 @@
         <div class="card-body">
             <h2 class="card-title">{{ props.name }}</h2>
             <p>價格 : {{ props.minPrice }} ~ {{ props.maxPrice }}</p>
+            <p class="text-sm text-gray-500">庫存總數：{{ totalStock }}</p>
             <p></p>           
             <div class="card-actions justify-end">
                 <button @click="pBtn()" class="btn ">查看詳情</button>
@@ -25,6 +26,7 @@
         minPrice: Number,
         maxPrice: Number,
         image: String,
+        totalStock: Number ,
     })
     console.log('image', props.image); // 印出傳入的圖片路徑
     console.log('image', props.minPrice); // 印出傳入的圖片路徑
