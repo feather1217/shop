@@ -1,3 +1,4 @@
+<!-- callback.vue -->
 <template>
     <div class="p-8 text-center">
       <p>登入中，請稍候...</p>
@@ -15,18 +16,26 @@
   const router = useRouter()
   const userStore = useUserStore()
   
-onMounted(() => {
-  const userStr = route.query.user as string
-  if (!userStr) return console.error('缺少 user 參數')
-
-  try {
-    const parsed = JSON.parse(decodeURIComponent(userStr))
-    const user = new User(parsed.userId, parsed.displayName, parsed.pictureUrl)
-    userStore.setUser(user)
-    router.push('/') // 回首頁
-  } catch (e) {
-    console.error('解析 user 失敗', e)
-  }
-})
+  onMounted(async () => {
+    const code = route.query.code
+    if (!code || typeof code !== 'string') {
+      console.error('找不到 code')
+      return
+    }
+    try {
+      // 🔸 用 axios 向後端換使用者資訊
+      const res = await axios.get(`http://localhost:8080/api/line/callback?code=${code}`)
+      const data = res.data.user
+      if (!data) throw new Error('缺少 user 資料')
+  
+      const user = new User(data.userId, data.displayName, data.pictureUrl)
+      console.log('登入成功:', user)
+      userStore.setUser(user)
+  
+      router.push('/') // ✅ 登入成功導回首頁
+    } catch (err) {
+      console.error('登入錯誤:', err)
+    }
+  })
   </script>
   

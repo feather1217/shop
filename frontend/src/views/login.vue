@@ -6,9 +6,8 @@
   
   <script setup lang="ts">
   const redirectToLineLogin = () => {
-    // LINE 登入的參數
     const clientId = '2007292223'
-    const redirectUri = encodeURIComponent('http://localhost:8080/api/line/callback')
+    const redirectUri = encodeURIComponent('http://localhost:5173/callback') // 🔸 導回前端
     const state = 'abc123'
     const scope = 'profile openid'
     const responseType = 'code'

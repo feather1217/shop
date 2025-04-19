@@ -19,7 +19,7 @@ func main() {
         AllowCredentials: true,
         MaxAge:           12 * time.Hour,
     }))
-    r.GET("/api/line/callback", api.LineCallback)
+    r.GET("/api/line/callback", api.LineCallbackHandler)
 	// Routes
     r.Run(":8080")
 }

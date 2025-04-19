@@ -2,22 +2,18 @@ package services
 
 import (
 	"backend/config"
+	"backend/models"
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 )
 
-type LineProfile struct {
-	UserID      string `json:"userId"`
-	DisplayName string `json:"displayName"`
-	PictureURL  string `json:"pictureUrl"`
-}
 
-func HandleLineCallback(code string) (*LineProfile, error) {
-	// 換 access token
+func HandleLineCallback(code string) (*models.LineProfile, error) {
 	tokenURL := "https://api.line.me/oauth2/v2.1/token"
 	data := url.Values{}
 	data.Set("grant_type", "authorization_code")
@@ -33,6 +29,8 @@ func HandleLineCallback(code string) (*LineProfile, error) {
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("🔑 token response:", string(body)) // 印出 access token 回應
+
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
 
@@ -41,7 +39,6 @@ func HandleLineCallback(code string) (*LineProfile, error) {
 		return nil, errors.New("access_token missing")
 	}
 
-	// 拿 profile
 	req, _ := http.NewRequest("GET", "https://api.line.me/v2/profile", nil)
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
@@ -52,7 +49,9 @@ func HandleLineCallback(code string) (*LineProfile, error) {
 	defer profileResp.Body.Close()
 
 	profileBody, _ := io.ReadAll(profileResp.Body)
-	var profile LineProfile
+	fmt.Println("👤 profile response:", string(profileBody)) // 印出使用者資料回應
+
+	var profile models.LineProfile
 	if err := json.Unmarshal(profileBody, &profile); err != nil {
 		return nil, err
 	}
