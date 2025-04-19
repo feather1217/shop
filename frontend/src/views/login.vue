@@ -1,9 +1,19 @@
 <template>
-    <div class=" flex items-center justify-center">
-        <h1 class=" text-4xl">login</h1>
+    <div class="flex items-center justify-center h-screen">
+      <button @click="redirectToLineLogin" class="btn btn-success text-lg">使用 LINE 登入</button>
     </div>
-</template>
-
-<script setup lang="ts">
-    
-</script>
+  </template>
+  
+  <script setup lang="ts">
+  const redirectToLineLogin = () => {
+    // LINE 登入的參數
+    const clientId = '2007292223'
+    const redirectUri = encodeURIComponent('http://localhost:8080/api/line/callback')
+    const state = 'abc123'
+    const scope = 'profile openid'
+    const responseType = 'code'
+    const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}`
+    window.location.href = loginUrl
+  }
+  </script>
+  

@@ -1,10 +1,11 @@
-// stores/user.ts
+// stores/userStore.ts
+
 import { defineStore } from 'pinia'
-import User from '../model/user'
+import User from '@/model/user'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null as User | null, // 預設為 null，當使用者登入後才設置
+    user: null as User | null
   }),
   actions: {
     setUser(user: User) {

@@ -3,6 +3,7 @@ package main
 import (
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
+    "backend/api"
     "time"
 )
 
@@ -18,7 +19,7 @@ func main() {
         AllowCredentials: true,
         MaxAge:           12 * time.Hour,
     }))
-
+    r.GET("/api/line/callback", api.LineCallback)
 	// Routes
     r.Run(":8080")
 }
