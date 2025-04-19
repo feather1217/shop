@@ -70,6 +70,25 @@ export const useProductStore = defineStore('product', {
       getProductById(id: number) {
         return this.products.find(p => p.id === id)
       },
+
+      decreaseStock(count: number) {
+        const selected = this.getSelectedProduct()
+        if (!selected) return
+      
+        const variant = selected.variants.find(v => {
+          return (
+            v.specValue1 === this.selectedSpecs[selected.specTypes[0].name] &&
+            (selected.specTypes[1] ? v.specValue2 === this.selectedSpecs[selected.specTypes[1].name] : true)
+          )
+        })
+      
+        if (variant && variant.stock >= count) {
+          variant.stock -= count
+        }
+      },
+
+      
+      
       
   }
   

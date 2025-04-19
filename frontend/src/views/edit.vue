@@ -183,25 +183,35 @@ const showSavedToast = ref(false)
 const showErrorToast = ref(false)
 
 function saveProduct() {
-    const firstImage = specBuilder.specTypes[0]?.values[0]?.imageUrl;
-    if (!firstImage) {
-        showErrorToast.value = true;
-        setTimeout(() => {
-            showErrorToast.value = false;
-        }, 3000);
-        return;
-    }
-    const product = specBuilder.buildProduct();
-    productStore.addProduct(product);
-    showSavedToast.value = true;
+  const firstImage = specBuilder.specTypes[0]?.values[0]?.imageUrl;
+  if (!firstImage) {
+    showErrorToast.value = true;
     setTimeout(() => {
-        showSavedToast.value = false;
-    }, 2000);
+      showErrorToast.value = false;
+    }, 3000);
+    return;
+  }
 
-    // 清空編輯區
-    specBuilder.name = '';
-    specBuilder.specTypes = [{ name: '', values: [{ value: '', imageUrl: undefined }] }];
-    specBuilder.variants = [];
-    selectedProductId.value = null;
+  const product = specBuilder.buildProduct();
+
+  if (selectedProductId.value) {
+    // 如果有 selectedProductId，代表是編輯模式 → 更新商品
+    productStore.updateProduct(product);
+  } else {
+    // 沒有 selectedProductId → 新增商品
+    productStore.addProduct(product);
+  }
+
+  showSavedToast.value = true;
+  setTimeout(() => {
+    showSavedToast.value = false;
+  }, 2000);
+
+  // 清空編輯區
+  specBuilder.name = '';
+  specBuilder.specTypes = [{ name: '', values: [{ value: '', imageUrl: undefined }] }];
+  specBuilder.variants = [];
+  selectedProductId.value = null;
 }
+
 </script>

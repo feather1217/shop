@@ -12,9 +12,9 @@
         <div v-for="spec in selectedProduct.specTypes" :key="spec.name" class="mt-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">{{ spec.name }}</label>
           <div class="space-x-3">
-            <button v-for="val in spec.values" :key="val.value" class="btn"
+            <button v-for="val in spec.values" :key="val.value" class="btn "
               :disabled="getStock(spec.name, val.value) === 0"
-              :class="[selectedSpecs[spec.name] === val.value ? 'btn-soft btn-info' : 'bg-gray-100 text-gray-00']"
+              :class="[selectedSpecs[spec.name] === val.value ? 'btn-soft btn-primary' : 'bg-gray-100 text-gray-00']"
               @click="selectSpec(spec.name, val.value)">
               {{ val.value }}
             </button>
@@ -33,37 +33,54 @@
 
         <!-- 下單按鈕 -->
         <div class="mt-6 flex gap-4 items-center">
-          <button class="btn text-white bg-blue-400 disabled:bg-gray-300" :disabled="getSelected() === 0" @click="addToCart">
+          <button class="btn text-white btn-primary disabled:bg-gray-300" :disabled="getSelected() === 0" @click="addToCart">
             購買
           </button>
         </div>
       </div>
     </div>
+
+    <!-- Toast -->
+<div v-if="toastMessage" class="toast toast-start">
+  <div class="alert alert-primary shadow-lg">
+    <PhCheckCircle :size="24" weight="bold" color="#422ad5" />
+    <span>{{ toastMessage }}</span>
+  </div>
+</div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { useProductStore } from '@/stores/productStore'
 import { ref, computed } from 'vue'
+import { useProductStore } from '@/stores/productStore'
+import { PhPlus, PhCheckCircle, PhWarningCircle } from "@phosphor-icons/vue"
+// 例如你在 /products.vue
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const userName = route.query.user
+console.log('登入者：', userName)
 
 const productStore = useProductStore()
 
 const selectedSpecs = computed(() => productStore.selectedSpecs)
 const selectedProduct = computed(() => productStore.getSelectedProduct())
 const quantity = ref(1)
-/// 獲取所有商品規格
+const toastMessage = ref('') // toast 訊息
+
 function selectSpec(name: string, value: string) {
   productStore.selectSpec(name, value)
 }
-/// 獲取庫存數量
+
 function getStock(specName: string, value: string) {
   return productStore.getStock(specName, value)
 }
-/// 獲取選中商品的庫存數量
+
 function getSelected() {
   return productStore.getSelectedProductStock()
 }
-/// 驗證數量輸入
+
 function checkNum() {
   if (quantity.value > getSelected()) {
     quantity.value = getSelected()
@@ -71,11 +88,22 @@ function checkNum() {
 }
 
 function addToCart() {
-  // 模擬加入購物車的動作
+  const stock = getSelected()
+  if (stock === 0 || quantity.value > stock) return
+
+  productStore.decreaseStock(quantity.value)
+
+  // 顯示 toast
+  toastMessage.value = '已加入購物車！'
+  setTimeout(() => {
+    toastMessage.value = ''
+  }, 2000)
+
   console.log('加入購物車', {
     productId: selectedProduct.value?.id,
     specs: selectedSpecs.value,
     quantity: quantity.value,
   })
 }
+
 </script>
