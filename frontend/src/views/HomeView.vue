@@ -15,8 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import CommodityCard from '@/components/productCard.vue'
 import { useProductStore } from '@/stores/productStore'
 import { useUserStore } from '@/stores/userStore'
@@ -25,34 +27,17 @@ const router = useRouter()
 const productStore = useProductStore()
 const userStore = useUserStore()
 
-// 直接從 Pinia Store 獲取產品資料
-const products = productStore.products
+// 使用 storeToRefs 解構 products 並保有響應性
+const { products } = storeToRefs(productStore)
 
 function handleViewDetail(id: number) {
   productStore.selectedSpecs['id'] = String(id)
   router.push(`/product/${id}`)
 }
 
-// 監聽 products 更新
-watch(() => productStore.products, (newProducts) => {
-  console.log('監聽到 products 更新:', newProducts)
-})
-
 onMounted(() => {
-  // 載入商品資料
   productStore.loadProducts()
-
-  // 無登入則跳轉至 LINE 登入
-  if (!userStore.user) {
-    const clientId = '2007292223'
-    const redirectUri = encodeURIComponent('http://localhost:5173/callback')
-    const state = crypto.randomUUID()
-    const scope = 'profile openid'
-
-    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}`
-
-    window.location.href = lineLoginUrl
-  }
 })
+
 </script>
 

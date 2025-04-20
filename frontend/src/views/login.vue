@@ -7,7 +7,7 @@
   <script setup lang="ts">
   const redirectToLineLogin = () => {
     const clientId = '2007292223'
-    const redirectUri = encodeURIComponent('http://localhost:5173/callback') // 🔸 導回前端
+    const redirectUri = encodeURIComponent('http://localhost:5173/callback') 
     const state = 'abc123'
     const scope = 'profile openid'
     const responseType = 'code'
