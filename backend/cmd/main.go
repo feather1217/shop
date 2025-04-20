@@ -20,6 +20,8 @@ func main() {
         MaxAge:           12 * time.Hour,
     }))
     r.GET("/api/line/callback", api.LineCallbackHandler)
+    r.POST("/api/line/message", api.SendLineMessageHandler)
+
 	// Routes
     r.Run(":8080")
 }

@@ -6,3 +6,8 @@ type LineProfile struct {
     DisplayName string `json:"displayName"`
     PictureURL  string `json:"pictureUrl"`
 }
+
+type LineLoginResponse struct {
+    Profile     LineProfile `json:"profile"`
+    AccessToken string      `json:"accessToken"`
+}

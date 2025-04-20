@@ -33,7 +33,8 @@
 
         <!-- 下單按鈕 -->
         <div class="mt-6 flex gap-4 items-center">
-          <button class="btn text-white btn-primary disabled:bg-gray-300" :disabled="getSelected() === 0" @click="addToCart">
+          <button class="btn text-white btn-primary disabled:bg-gray-300" :disabled="getSelected() === 0"
+            @click="addToCart">
             購買
           </button>
         </div>
@@ -41,12 +42,12 @@
     </div>
 
     <!-- Toast -->
-<div v-if="toastMessage" class="toast toast-start">
-  <div class="alert alert-primary shadow-lg">
-    <PhCheckCircle :size="24" weight="bold" color="#422ad5" />
-    <span>{{ toastMessage }}</span>
-  </div>
-</div>
+    <div v-if="toastMessage" class="toast toast-start">
+      <div class="alert alert-primary shadow-lg">
+        <PhCheckCircle :size="24" weight="bold" color="#422ad5" />
+        <span>{{ toastMessage }}</span>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -54,14 +55,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useProductStore } from '@/stores/productStore'
+import { useUserStore } from '@/stores/userStore'
 import { PhPlus, PhCheckCircle, PhWarningCircle } from "@phosphor-icons/vue"
+import axios from 'axios'
 // 例如你在 /products.vue
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const userName = route.query.user
 console.log('登入者：', userName)
-
+const userStore = useUserStore()
 const productStore = useProductStore()
 
 const selectedSpecs = computed(() => productStore.selectedSpecs)
@@ -86,24 +89,44 @@ function checkNum() {
     quantity.value = getSelected()
   }
 }
-
-function addToCart() {
+async function addToCart() {
   const stock = getSelected()
   if (stock === 0 || quantity.value > stock) return
 
   productStore.decreaseStock(quantity.value)
 
-  // 顯示 toast
+  if (!userStore.user) {
+    console.warn('使用者未登入，無法傳送訊息')
+    return
+  }
+
+  const productName = selectedProduct.value?.name || ''
+  const specs = selectedSpecs.value
+  const specTypeNames = selectedProduct.value?.specTypes.map(s => s.name) || []
+
+  const specText = specTypeNames
+    .map(name => `${name}：${specs[name]}`)
+    .join('，')
+
+  const qty = quantity.value
+  const lineMessage = `感謝您的購買 🛒\n\n商品：${productName}\n${specText}\n數量：${qty}`
+
+  await axios.post('http://localhost:8080/api/line/message', {
+    userId: userStore.user.userId,
+    message: lineMessage
+  })
+
   toastMessage.value = '已加入購物車！'
   setTimeout(() => {
     toastMessage.value = ''
   }, 2000)
 
   console.log('加入購物車', {
-    productId: selectedProduct.value?.id,
     specs: selectedSpecs.value,
     quantity: quantity.value,
   })
 }
+
+
 
 </script>

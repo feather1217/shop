@@ -12,8 +12,8 @@ import (
 	"net/url"
 )
 
-
-func HandleLineCallback(code string) (*models.LineProfile, error) {
+// Line 登入回調
+func HandleLineCallback(code string) (*models.LineLoginResponse, error) {
 	tokenURL := "https://api.line.me/oauth2/v2.1/token"
 	data := url.Values{}
 	data.Set("grant_type", "authorization_code")
@@ -29,7 +29,7 @@ func HandleLineCallback(code string) (*models.LineProfile, error) {
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("🔑 token response:", string(body)) // 印出 access token 回應
+	fmt.Println("token response:", string(body))
 
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
@@ -49,12 +49,48 @@ func HandleLineCallback(code string) (*models.LineProfile, error) {
 	defer profileResp.Body.Close()
 
 	profileBody, _ := io.ReadAll(profileResp.Body)
-	fmt.Println("👤 profile response:", string(profileBody)) // 印出使用者資料回應
+	fmt.Println("👤 profile response:", string(profileBody))
 
 	var profile models.LineProfile
 	if err := json.Unmarshal(profileBody, &profile); err != nil {
 		return nil, err
 	}
 
-	return &profile, nil
+	return &models.LineLoginResponse{
+		Profile:     profile,
+		AccessToken: accessToken,
+	}, nil
 }
+// 發送消息到 Line
+func SendLineMessage(userID, message string) error {
+	url := "https://api.line.me/v2/bot/message/push"
+	channelToken := config.LineChannelAccessToken
+
+	body := map[string]interface{}{
+		"to": userID,
+		"messages": []map[string]string{
+			{
+				"type": "text",
+				"text": message,
+			},
+		},
+	}
+
+	jsonBody, _ := json.Marshal(body)
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization",channelToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("LINE API 回傳錯誤狀態碼：%d", resp.StatusCode)
+	}
+
+	return nil
+}
+
