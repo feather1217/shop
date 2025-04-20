@@ -9,6 +9,4 @@ import Navbar from '@/components/menu.vue'
 
 </script>
 
-<style scoped>
 
-</style>

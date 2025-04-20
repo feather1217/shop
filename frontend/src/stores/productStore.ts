@@ -12,6 +12,8 @@ export const useProductStore = defineStore('product', {
   actions: {
     loadProducts() { //從mock載入資料
       this.products = productMock
+      console.log('載入商品資料:', productMock)  // 確認資料有正確載入
+      console.log('products 更新為:', this.products)  // 確認 Pinia 資料已更新
     },
 
     selectSpec(name: string, value: string) { // 選擇規格
