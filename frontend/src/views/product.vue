@@ -62,9 +62,8 @@ import axios from 'axios'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const userName = route.query.user
-console.log('登入者：', userName)
 const userStore = useUserStore()
+console.log('登入者：', userStore.user?.displayName || '尚未登入')
 const productStore = useProductStore()
 
 const selectedSpecs = computed(() => productStore.selectedSpecs)
