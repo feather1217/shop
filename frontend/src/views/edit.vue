@@ -21,7 +21,6 @@
 
             <!-- 右側：商品編輯 -->
             <div class="md:w-3/4 space-y-6">
-                <!-- 商品名稱 -->
                 <div class="card bg-base-100 shadow-lg p-4">
                     <div class="form-control">
                         <label class="label font-semibold text-base">商品名稱</label>
@@ -30,14 +29,13 @@
                     </div>
                 </div>
 
-                <!-- 輸入規格類型與值 -->
                 <div v-for="(spec, index) in specBuilder.specTypes" :key="index" class="border rounded-lg p-4 shadow">
                     <input v-model="spec.name" type="text" placeholder="輸入規格類型名稱"
                         class="input input-sm input-bordered mb-2 w-full" />
                     <div v-for="(value, idx) in spec.values" :key="idx" class="flex items-center gap-4 mb-2">
                         <input v-model="spec.values[idx].value" type="text" placeholder="輸入規格值"
                             class="input input-sm input-bordered w-full" />
-                        <input v-if="index === 0" type="file" @change="event => handleImageUpload(event, index, idx)"
+                        <input v-if="index === 0" type="file" @change="handleImageUpload($event, index, idx)"
                             class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
                     </div>
                     <button @click="addSpecValue(index)" class="btn btn-outline btn-primary btn-sm mt-2">
@@ -45,7 +43,6 @@
                     </button>
                 </div>
 
-                <!-- 新增規格類型 -->
                 <div>
                     <button @click="addSpecType" class="btn btn-primary"
                         :class="{ 'btn-disabled bg-gray-300 text-gray-500': specBuilder.specTypes.length >= 2 }">
@@ -53,7 +50,6 @@
                     </button>
                 </div>
 
-                <!-- 規格組合表格 -->
                 <div class="overflow-x-auto">
                     <h2 class="text-xl font-bold mb-4">規格組合</h2>
                     <table v-if="specBuilder.variants.length > 0" class="table table-zebra w-full">
@@ -69,20 +65,15 @@
                             <tr v-for="(variant, index) in specBuilder.variants" :key="index">
                                 <td>{{ variant.specValue1 }}</td>
                                 <td>{{ variant.specValue2 }}</td>
-                                <td>
-                                    <input v-model.number="variant.stock" type="number" min="0"
-                                        class="input input-sm input-bordered w-20" />
-                                </td>
-                                <td>
-                                    <input v-model.number="variant.price" type="number" min="0"
-                                        class="input input-sm input-bordered w-20" />
-                                </td>
+                                <td><input v-model.number="variant.stock" type="number" min="0"
+                                        class="input input-sm input-bordered w-20" /></td>
+                                <td><input v-model.number="variant.price" type="number" min="0"
+                                        class="input input-sm input-bordered w-20" /></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- 儲存按鈕 -->
                 <div>
                     <button @click="saveProduct" class="btn btn-primary w-full text-lg py-2">
                         {{ selectedProductId ? '儲存商品' : '新增商品' }}
@@ -91,18 +82,14 @@
             </div>
         </div>
 
-        <!-- Toasts -->
-        <div v-if="showSavedToast" class="toast toast-start">
-            <div class="alert alert-primary shadow-lg">
-                <PhCheckCircle :size="24" weight="bold" color="#422ad5" />
-                <span>商品已成功儲存！</span>
-            </div>
-        </div>
-
-        <div v-if="showErrorToast" class="toast toast-start">
-            <div class="alert alert-error shadow-lg">
-                <PhWarningCircle :size="24" />
-                <span>請為第一個規格的第一個值上傳圖片！</span>
+        <div v-if="showToast" class="toast toast-start">
+            <div class="alert" :class="{
+                'bg-white text-green-700 border-green-300': toastType === 'success',
+                'bg-white text-red-700 border-red-300': toastType === 'error'
+            }">
+                <PhCheckCircle v-if="toastType === 'success'" :size="24" weight="bold" color="#008236" />
+                <PhWarningCircle v-if="toastType === 'error'" :size="24" />
+                <span>{{ toastMessage }}</span>
             </div>
         </div>
     </div>
@@ -114,51 +101,50 @@ import { useSpecBuilderStore } from '@/stores/builderStore'
 import { useProductStore } from '@/stores/productStore'
 import { PhPlus, PhCheckCircle, PhWarningCircle } from "@phosphor-icons/vue"
 
-// Store 取用
 const specBuilder = useSpecBuilderStore()
 const productStore = useProductStore()
 
-// 商品選擇控制
 const selectedProductId = ref<number | null>(null)
 const mockProductsList = computed(() => productStore.products)
 
-// 監聽商品選擇變化
+// 監聽商品規格變化並生成變體
 watch(
     () => specBuilder.specTypes.map(type => type.values.map(v => v.value)),
-    () => {
-        specBuilder.generateVariants()
-    },
+    specBuilder.generateVariants,
     { deep: true }
 )
 
-//商品功能
 function selectProduct(id?: number) {
     const targetId = id ?? selectedProductId.value
     if (!targetId) return
     const selectedProduct = mockProductsList.value.find(p => p.id === targetId)
     if (selectedProduct) {
+        Object.assign(specBuilder, {
+            id: selectedProduct.id,
+            name: selectedProduct.name,
+            specTypes: JSON.parse(JSON.stringify(selectedProduct.specTypes)),
+            variants: JSON.parse(JSON.stringify(selectedProduct.variants))
+        })
         selectedProductId.value = selectedProduct.id
-        specBuilder.id = selectedProduct.id
-        specBuilder.name = selectedProduct.name
-        specBuilder.specTypes = JSON.parse(JSON.stringify(selectedProduct.specTypes))
-        specBuilder.variants = JSON.parse(JSON.stringify(selectedProduct.variants))
     }
 }
 
 function addNewProduct() {
-    specBuilder.id = Date.now()
-    specBuilder.name = ''
-    specBuilder.specTypes = [{ name: '', values: [{ value: '', imageUrl: '' }] }]
-    specBuilder.variants = []
+    Object.assign(specBuilder, {
+        id: Date.now(),
+        name: '',
+        specTypes: [{ name: '', values: [{ value: '', imageUrl: '' }] }],
+        variants: []
+    })
     selectedProductId.value = null
     specBuilder.generateVariants()
 }
 
-// 規格操作
 function addSpecType() {
-    if (specBuilder.specTypes.length >= 2) return
-    specBuilder.specTypes.push({ name: '輸入規格類型', values: [{ value: '', imageUrl: '' }] })
-    specBuilder.generateVariants()
+    if (specBuilder.specTypes.length < 2) {
+        specBuilder.specTypes.push({ name: '輸入規格類型', values: [{ value: '', imageUrl: '' }] })
+        specBuilder.generateVariants()
+    }
 }
 
 function addSpecValue(specIndex: number) {
@@ -171,47 +157,46 @@ function handleImageUpload(event: Event, specIndex: number, valueIndex: number) 
     if (fileInput.files?.[0]) {
         const reader = new FileReader()
         reader.onload = () => {
-            const imageUrl = reader.result as string
-            specBuilder.specTypes[specIndex].values[valueIndex].imageUrl = imageUrl
+            specBuilder.specTypes[specIndex].values[valueIndex].imageUrl = reader.result as string
         }
         reader.readAsDataURL(fileInput.files[0])
     }
 }
 
-// 儲存功能
-const showSavedToast = ref(false)
-const showErrorToast = ref(false)
+// Toast 狀態和訊息
+const showToast = ref(false)
+const toastType = ref<'success' | 'error'>('success')
+const toastMessage = ref('')
 
-function saveProduct() {
-  const firstImage = specBuilder.specTypes[0]?.values[0]?.imageUrl;
-  if (!firstImage) {
-    showErrorToast.value = true;
+// 顯示 Toast
+function toggleToast(type: 'success' | 'error', message: string, delay: number) {
+    toastType.value = type
+    toastMessage.value = message
+    showToast.value = true
     setTimeout(() => {
-      showErrorToast.value = false;
-    }, 3000);
-    return;
-  }
-
-  const product = specBuilder.buildProduct();
-
-  if (selectedProductId.value) {
-    // 如果有 selectedProductId，代表是編輯模式 → 更新商品
-    productStore.updateProduct(product);
-  } else {
-    // 沒有 selectedProductId → 新增商品
-    productStore.addProduct(product);
-  }
-
-  showSavedToast.value = true;
-  setTimeout(() => {
-    showSavedToast.value = false;
-  }, 2000);
-
-  // 清空編輯區
-  specBuilder.name = '';
-  specBuilder.specTypes = [{ name: '', values: [{ value: '', imageUrl: undefined }] }];
-  specBuilder.variants = [];
-  selectedProductId.value = null;
+        showToast.value = false
+    }, delay)
 }
 
+
+// 儲存商品
+function saveProduct() {
+    const firstImage = specBuilder.specTypes[0]?.values[0]?.imageUrl
+    if (!firstImage) {
+        toggleToast('error', '請為第一個規格的第一個值上傳圖片！', 3000)
+        return
+    }
+
+    const product = specBuilder.buildProduct()
+    if (selectedProductId.value) {
+        productStore.updateProduct(product)
+    } else {
+        productStore.addProduct(product)
+    }
+    console.log('儲存商品:', product)
+    toggleToast('success', '商品已成功儲存！', 2000)
+
+    // 清空編輯區
+    addNewProduct()
+}
 </script>
