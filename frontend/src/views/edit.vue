@@ -101,7 +101,7 @@ import { useSpecBuilderStore } from '@/stores/builderStore'
 import { useProductStore } from '@/stores/productStore'
 import { PhPlus, PhCheckCircle, PhWarningCircle } from "@phosphor-icons/vue"
 
-const specBuilder = useSpecBuilderStore()
+const specBuilder = useSpecBuilderStore() 
 const productStore = useProductStore()
 
 const selectedProductId = ref<number | null>(null)
@@ -113,7 +113,7 @@ watch(
     specBuilder.generateVariants,
     { deep: true }
 )
-
+// 選擇商品
 function selectProduct(id?: number) {
     const targetId = id ?? selectedProductId.value
     if (!targetId) return
@@ -128,7 +128,7 @@ function selectProduct(id?: number) {
         selectedProductId.value = selectedProduct.id
     }
 }
-
+// 清空編輯區
 function addNewProduct() {
     Object.assign(specBuilder, {
         id: Date.now(),
@@ -139,19 +139,19 @@ function addNewProduct() {
     selectedProductId.value = null
     specBuilder.generateVariants()
 }
-
+// 新增規格類型
 function addSpecType() {
     if (specBuilder.specTypes.length < 2) {
         specBuilder.specTypes.push({ name: '輸入規格類型', values: [{ value: '', imageUrl: '' }] })
         specBuilder.generateVariants()
     }
 }
-
+// 新增規格值
 function addSpecValue(specIndex: number) {
     specBuilder.addSpecValue(specIndex, '', '')
     specBuilder.generateVariants()
 }
-
+// 處理圖片上傳
 function handleImageUpload(event: Event, specIndex: number, valueIndex: number) {
     const fileInput = event.target as HTMLInputElement
     if (fileInput.files?.[0]) {
@@ -162,7 +162,6 @@ function handleImageUpload(event: Event, specIndex: number, valueIndex: number) 
         reader.readAsDataURL(fileInput.files[0])
     }
 }
-
 // Toast 狀態和訊息
 const showToast = ref(false)
 const toastType = ref<'success' | 'error'>('success')
@@ -178,7 +177,6 @@ function toggleToast(type: 'success' | 'error', message: string, delay: number) 
     }, delay)
 }
 
-
 // 儲存商品
 function saveProduct() {
     const firstImage = specBuilder.specTypes[0]?.values[0]?.imageUrl
@@ -186,7 +184,6 @@ function saveProduct() {
         toggleToast('error', '請為第一個規格的第一個值上傳圖片！', 3000)
         return
     }
-
     const product = specBuilder.buildProduct()
     if (selectedProductId.value) {
         productStore.updateProduct(product)
@@ -195,7 +192,6 @@ function saveProduct() {
     }
     console.log('儲存商品:', product)
     toggleToast('success', '商品已成功儲存！', 2000)
-
     // 清空編輯區
     addNewProduct()
 }

@@ -53,7 +53,7 @@ const mockProducts: Product[] = [
           { specValue1: '灰色', specValue2: 'M', stock: 5, price: 300 },
           { specValue1: '灰色', specValue2: 'L', stock: 3, price: 300 }
         ]
-      )
+      ),
   ]
   
 

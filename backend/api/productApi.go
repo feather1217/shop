@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// CreateProduct 新增商品
 func CreateProduct(c *gin.Context) {
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
@@ -35,7 +36,7 @@ func CreateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
-
+// 獲取所有商品
 func GetProducts(c *gin.Context) {
 	var products []models.Product
 	if err := database.DB.Preload("SpecTypes.Values").Preload("Variants").Find(&products).Error; err != nil {
@@ -44,6 +45,8 @@ func GetProducts(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, products)
 }
+
+// 獲取單個商品
 func GetProductByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -56,7 +59,7 @@ func GetProductByID(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
-
+// 更新商品
 func UpdateProduct(c *gin.Context) {
 	id := c.Param("id")
 	var newProduct models.Product
@@ -100,8 +103,7 @@ func UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, existingProduct)
 }
 
-
-// api/product.go
+//刪除商品
 func DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
 

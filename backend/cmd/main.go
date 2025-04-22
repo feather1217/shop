@@ -3,7 +3,6 @@ package main
 import (
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
-    "backend/api"
     "backend/database"
     "backend/routes"
     "time"
@@ -24,9 +23,10 @@ func main() {
         AllowCredentials: true,
         MaxAge:           12 * time.Hour,
     }))
-    r.GET("/api/line/callback", api.LineCallbackHandler)
-    r.POST("/api/line/message", api.SendLineMessageHandler)
-    routes.RegisterProductRoutes(r)
+
+    lineRoutes := r.Group("/api/line") // Line API 路由
+    routes.LineRoutes(lineRoutes)
+    routes.ProductRoutes(r)
 	// Routes
     r.Run(":8080")
 }

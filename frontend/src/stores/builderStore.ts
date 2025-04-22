@@ -5,7 +5,7 @@ import Product from '@/model/product'
 
 export const useSpecBuilderStore = defineStore('specBuilder', {
   state: () => ({
-    id: Date.now(), // 可以先用 timestamp 作為 id
+    id: Date.now(), //先用 timestamp 作為 id
     name: '',
     specTypes: [] as SpecType[], // 最大兩個規格
     variants: [] as ProductVariant[] // 規格組合
@@ -27,17 +27,14 @@ export const useSpecBuilderStore = defineStore('specBuilder', {
         }
       },
       
-
     // 自動生成規格組合
     generateVariants() {
       const spec1 = this.specTypes[0]
-      const spec2 = this.specTypes[1]
-    
+      const spec2 = this.specTypes[1]   
       if (!spec1 || spec1.values.length === 0) {
         this.variants = []
         return
-      }
-    
+      } 
       const values1 = spec1.values.map(v => v.value)
       const oldVariantMap = new Map<string, ProductVariant>()
     

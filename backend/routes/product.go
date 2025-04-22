@@ -6,7 +6,7 @@ import (
 	"backend/api"
 )
 
-func RegisterProductRoutes(r *gin.Engine) {
+func ProductRoutes(r *gin.Engine) {
 	product := r.Group("/api/products")
 	{
 		product.POST("/", api.CreateProduct)

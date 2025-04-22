@@ -14,9 +14,10 @@ import (
 
 // Line 登入回調
 func HandleLineCallback(code string) (*models.LineLoginResponse, error) {
+	// 檢查 code 是否存在
 	tokenURL := "https://api.line.me/oauth2/v2.1/token"
 	data := url.Values{}
-	data.Set("grant_type", "authorization_code")
+	data.Set("grant_type", "authorization_code") //指定授權碼OAuth流程
 	data.Set("code", code)
 	data.Set("redirect_uri", config.RedirectURI)
 	data.Set("client_id", config.LineClientID)
@@ -28,17 +29,19 @@ func HandleLineCallback(code string) (*models.LineLoginResponse, error) {
 	}
 	defer resp.Body.Close()
 
+	// 讀取Line API的回應，解析JSON，提取 access_token
 	body, _ := io.ReadAll(resp.Body)
 	fmt.Println("token response:", string(body))
 
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
 
-	accessToken, ok := result["access_token"].(string)
+	accessToken, ok := result["access_token"].(string) // 確保access_token為字串
 	if !ok {
 		return nil, errors.New("access_token missing")
 	}
 
+	// 使用 access_token 獲取用戶資料
 	req, _ := http.NewRequest("GET", "https://api.line.me/v2/profile", nil)
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
@@ -49,7 +52,7 @@ func HandleLineCallback(code string) (*models.LineLoginResponse, error) {
 	defer profileResp.Body.Close()
 
 	profileBody, _ := io.ReadAll(profileResp.Body)
-	fmt.Println("👤 profile response:", string(profileBody))
+	fmt.Println("profile response:", string(profileBody))
 
 	var profile models.LineProfile
 	if err := json.Unmarshal(profileBody, &profile); err != nil {

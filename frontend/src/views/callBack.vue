@@ -1,4 +1,3 @@
-<!-- callback.vue -->
 <template>
     <div class="p-8 text-center">
         <span class="loading loading-spinner text-primary"></span>
@@ -18,8 +17,8 @@ const router = useRouter()
 const userStore = useUserStore()
 
 onMounted(async () => {
-    const code = route.query.code
-    if (!code || typeof code !== 'string') {
+    const code = route.query.code //取得Line返回的code
+    if (!code || typeof code !== 'string') { 
         console.error('找不到 code')
         return
     }
@@ -30,11 +29,9 @@ onMounted(async () => {
         console.log('用戶資料:', res.data.user)
         console.log('access_token:', res.data.accessToken)
         if (!data) throw new Error('缺少 user 資料')
-
         const user = new User(data.userId, data.displayName, data.pictureUrl)
         console.log('登入成功:', user)
         userStore.setUser(user)
-
         router.push('/') //登入成功導回首頁
     } catch (err) {
         console.error('登入錯誤:', err)

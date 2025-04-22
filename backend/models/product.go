@@ -36,7 +36,7 @@ type ProductVariant struct {
 	Stock       int     `json:"stock"`
 	Price       float64 `json:"price"`
 }
-
+//處理價格範圍的計算
 func CalculatePriceRange(variants []ProductVariant) (min, max float64) {
 	if len(variants) == 0 {
 		return 0, 0
