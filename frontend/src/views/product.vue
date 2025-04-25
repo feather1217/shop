@@ -102,7 +102,7 @@ async function addToCart() {
   const productName = selectedProduct.value?.name || ''
   const specs = selectedSpecs.value
   const specTypeNames = selectedProduct.value?.specTypes.map(s => s.name) || []
-
+  //  將規格名稱和選擇的值組合成字串
   const specText = specTypeNames
     .map(name => `${name}：${specs[name]}`)
     .join('，')

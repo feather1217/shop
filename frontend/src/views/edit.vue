@@ -1,3 +1,4 @@
+```vue
 <template>
     <div class="mx-auto p-6">
         <h1 class="text-4xl font-bold mb-8 text-start">商品規格管理</h1>
@@ -113,8 +114,9 @@ watch(
     specBuilder.generateVariants,
     { deep: true }
 )
+
 // 選擇商品
-function selectProduct(id?: number) {
+const selectProduct = (id?: number) => {
     const targetId = id ?? selectedProductId.value
     if (!targetId) return
     const selectedProduct = mockProductsList.value.find(p => p.id === targetId)
@@ -128,8 +130,9 @@ function selectProduct(id?: number) {
         selectedProductId.value = selectedProduct.id
     }
 }
+
 // 清空編輯區
-function addNewProduct() {
+const addNewProduct = () => {
     Object.assign(specBuilder, {
         id: Date.now(),
         name: '',
@@ -139,20 +142,23 @@ function addNewProduct() {
     selectedProductId.value = null
     specBuilder.generateVariants()
 }
+
 // 新增規格類型
-function addSpecType() {
+const addSpecType = () => {
     if (specBuilder.specTypes.length < 2) {
         specBuilder.specTypes.push({ name: '輸入規格類型', values: [{ value: '', imageUrl: '' }] })
         specBuilder.generateVariants()
     }
 }
+
 // 新增規格值
-function addSpecValue(specIndex: number) {
+const addSpecValue = (specIndex: number) => {
     specBuilder.addSpecValue(specIndex, '', '')
     specBuilder.generateVariants()
 }
+
 // 處理圖片上傳
-function handleImageUpload(event: Event, specIndex: number, valueIndex: number) {
+const handleImageUpload = (event: Event, specIndex: number, valueIndex: number) => {
     const fileInput = event.target as HTMLInputElement
     if (fileInput.files?.[0]) {
         const reader = new FileReader()
@@ -162,13 +168,14 @@ function handleImageUpload(event: Event, specIndex: number, valueIndex: number) 
         reader.readAsDataURL(fileInput.files[0])
     }
 }
+
 // Toast 狀態和訊息
 const showToast = ref(false)
 const toastType = ref<'success' | 'error'>('success')
 const toastMessage = ref('')
 
 // 顯示 Toast
-function toggleToast(type: 'success' | 'error', message: string, delay: number) {
+const toggleToast = (type: 'success' | 'error', message: string, delay: number) => {
     toastType.value = type
     toastMessage.value = message
     showToast.value = true
@@ -178,7 +185,7 @@ function toggleToast(type: 'success' | 'error', message: string, delay: number) 
 }
 
 // 儲存商品
-function saveProduct() {
+const saveProduct = () => {
     const firstImage = specBuilder.specTypes[0]?.values[0]?.imageUrl
     if (!firstImage) {
         toggleToast('error', '請為第一個規格的第一個值上傳圖片！', 3000)
@@ -196,3 +203,4 @@ function saveProduct() {
     addNewProduct()
 }
 </script>
+```

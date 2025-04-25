@@ -29,7 +29,7 @@
         totalStock: Number ,
     })
     console.log('image', props.image); // 印出傳入的圖片路徑
-    console.log('image', props.minPrice); // 印出傳入的圖片路徑
+    console.log('minPrice', props.minPrice); // 印出傳入的圖片路徑
     const emit = defineEmits(['view-detail'])
     function pBtn() {
         emit('view-detail', props.id)
